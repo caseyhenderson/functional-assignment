@@ -6,6 +6,7 @@
   :dependencies [[org.clojure/clojure "1.11.1"]
                  [org.clojure/tools.reader "1.1.3.1"]]
   :main ^:skip-aot functional-assignment.core
-  :target-path "target/%s"
+  :target-path "target/%s" 
+  :test-paths ["test"]
   :profiles {:uberjar {:aot :all
                        :jvm-opts ["-Dclojure.compiler.direct-linking=true"]}})
