@@ -66,12 +66,7 @@
 ; results also validated by using https://onlineasciitools.com/convert-ascii-to-morse
 ; come back and change and put 3/7 spaces in for char/word
 ; unit test both of these conversions
-; could we do a spec?
  
-; check seven spaces 
-;functions need to be snake case
-
-
 ; Helper functions
 (defn remove-999 [line] 
   (remove #{-999} line))
@@ -110,7 +105,7 @@
         divider (- (count nineLess) 31) average (/ sanitisedResult divider) 
         degreeAverage (double (/ average 10)) intDegreeAverage (num degreeAverage)]
     ; curtail to 2dp 
-    (println "This is the result for the year " yearValue ". The sum of all its temperature values is " sanitisedResult "and the average is " average " tenths of a degree, and " (double (/ average 10)) " degrees")
+    (println "This is the result for the year" yearValue ". The average temperature for this year is"(format "%.2f"(double (/ average 10))) " degrees")
     intDegreeAverage)
     )
 ; warmest 2014 : 10.910.9479452054 degrees
@@ -119,7 +114,7 @@
 (defn -main
   [& args]
   ; take input for the user choice
-  (println "Press 1 for ASCII-Morse or 2 for Morse-ASCII. Press 3 to find the warmest day and mean average temp for the given calendar month n. Press 4 to find the warmest and coldest years.")
+  (println "Press 1 for ASCII-Morse or 2 for Morse-ASCII. Press 3 to find the warmest day and mean average temp for the given calendar month n (2a, 2c). Press 4 to find the warmest and coldest years.(2b)")
   (let [selection (Integer/parseInt (read-line))] 
     (println "Please supply a value.")
     (cond
@@ -130,6 +125,7 @@
       (= selection 3)
       (let [file "dailyMeanLegacy.txt" values (str/split (slurp file) #"\s+") n (Integer/parseInt(read-line)) structure (vec values) ] 
         ; start at the first value for the given month, and build a vector of all values for said month, row-by-row
+        ; all temp values outputted in degrees to 2dp for usability.
         (let [sanitised (drop 1 structure) sanVec (vec sanitised)
               finalVec (subvec sanVec (+ 1 n) (count sanitised)) monthValues (take-nth 14 finalVec) 
               months (mapv edn/read-string monthValues) 
@@ -137,19 +133,22 @@
               mean (/ result (count no999s)) maximum (apply max 0 months)
               minimum (apply min 100 no999s) maxIndex (+ 1 (.indexOf months maximum)) yearBasis (/ maxIndex 31) 
               yearValue (int(+ 1772 yearBasis)) dayValue (rem maxIndex 31)
-              maxFromMean (- maximum mean) minFromMean(- mean minimum) minIndex (.indexOf months minimum)]
-          (println "Month number: " n) ; translate to month text, eventually. we'll use a lookup function
-          (println "Warmest temp in month:" maximum "tenths of a degree")
-          (println "Mean average temp for month"(month-lookup (- n 1))":"mean "tenths of a degree")
-          (println "Difference from maximum"maximum"from mean"maxFromMean "and minimum"minimum"from mean"minFromMean"average")
+              maxFromMean (- maximum mean) minFromMean(- mean minimum) minIndex (.indexOf months minimum)
+              yearMinBasis ( / minIndex 31) yearMinValue (int(+ 1722 yearMinBasis)) dayMinValue (rem minIndex 31)
+              month (month-lookup (- n 1))]
+          (println "Month number: " n) ; translate to month text, eventually. we'll use a lookup function. could define as variable 
+          (println "Warmest temp in month:"(format "%.2f"(double(/ maximum 10)))"degrees")
+          (println "The warmest day for the calendar month of"month"is"dayValue""month""yearValue)
+          (println "Mean average temp for the month of"month":"(format "%.2f"(double(/ mean 10))) "degrees")
+          (println "Difference of maximum temperature["(format "%.2f"(double(/ maximum 10)))"]degrees from mean is"(format "%.2f"(double(/ maxFromMean 10))) "degrees")
+          (println "Difference of the minimum temperature["(format "%.2f"(double(/ minimum 10)))"]degrees from mean is"(format "%.2f"(double(/ minFromMean 10)))"degrees")
           (if (> minFromMean maxFromMean)
-            (println "Greatest difference is "minFromMean "found at"minIndex)
-          (println "Greatest difference is" maxFromMean "found at"maxIndex))
-          ; add date lookups later ^^
-          ; we'll translate this to degrees as well - both need it (or explicitly say tenths of degrees - check spec)
+            (println "Greatest variation from mean is"(format "%.2f"(double(/ minFromMean 10))) "degrees, on the date"dayMinValue""month""yearMinValue)
+          (println "Greatest variation from mean is" (format "%.2f"(double(/ maxFromMean 10))) "degrees, on the date"dayValue""month""yearValue))
           ; Calculations: day value - value is remainder of index / 31, division by 31 and addition to 1772 gives the year (int values only)
-          (println "Found at index:" maxIndex ".Warnest day in month"(month-lookup (- n 1))"is"dayValue""(month-lookup (- n 1))""yearValue) ; gives us the 'line'. 
-          ))
+          ; (println "Found at index:" maxIndex) Useful for verification of result
+          ) 
+          )
       (= selection 4) (let [file "dailyMeanLegacy.txt" values (str/split (slurp file) #"\s+")
                         line (loop [structure (vec values) emptyVec [] lineStart 0 lineEnd 434] ; for year accumulation will probably need to be done at this level (take them all into vectors of size 31*14?)
                                    (if (> lineEnd 108934) ; temp fix to avoid EOF crashing
@@ -162,14 +161,16 @@
                                         (let [nilVec (remove nil? emptyVec) maximum (apply max 0 nilVec) minimum (apply min 100 nilVec) maxIndex (.indexOf nilVec maximum) minIndex (.indexOf nilVec minimum)]
                                           ; wrap in an if statement to only print at the end
                                           ; supply not-found value to nth to avoid breaking
-                                          (println "The warmest year was" (nth year-keys maxIndex 0) "and the temperature was"maximum "degrees")
+                                          (println "The warmest year was" (nth year-keys maxIndex 0) "and the temperature was"(format "%.2f"(double maximum)) "degrees")
                                           ; default values to avoid breaking when vec has nothing in it
-                                          (println "The coldest year we have full data for was" (nth year-keys minIndex 0) "and the temperature was"minimum" degrees"lineEnd)
+                                          (println "The coldest year we have full data for was" (nth year-keys minIndex 0) "and the temperature was"(format "%.2f"(double minimum))"degrees")
                                           )
                                         (let [bigConj (year-average line)] 
                                           (conj emptyVec bigConj)))
                                       ; takes each year row-by-row
                                       (+ lineStart 434) (+ lineEnd 434)
                                       )
-                                     ))]))))
+                                     ))
+] (println "Only the winter data for 2022 was provided, hence it cannot be accurately compared to other years.") ; covers the 2022-case
+))))
                   
