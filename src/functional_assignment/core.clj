@@ -34,9 +34,8 @@
                     '1':'.----', '2':'..---', '3':'...--',
                     '4':'....-', '5':'.....', '6':'-....',
                     '7':'--...', '8':'---..', '9':'----.',
-                    '0':'-----', ', ':'--..--', '.':'.-.-.-',
-                    '?':'..--..', '/':'-..-.', '-':'-....-',
-                    '(':'-.--.', ')':'-.--.-'}")
+                    '0':'-----'}")
+; altered post-video to remove unecessary characters that aren't in the minimal standard character set.
 
 ; Deals with making a Clojure map out of the above, for use in the conversions
 (def morse-map (read-string (str/replace 
@@ -64,8 +63,6 @@
                    (str/split morse-ascii #" "))))
 ; inspired by https://stackoverflow.com/questions/74956079/convert-input-string-into-morse-code-with-clojure
 ; results also validated by using https://onlineasciitools.com/convert-ascii-to-morse
-; come back and change and put 3/7 spaces in for char/word
-; unit test both of these conversions
  
 ; Helper functions
 (defn remove-999 [line] 
