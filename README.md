@@ -8,33 +8,7 @@ Secondly: a program that takes data from the Central England Temperature records
     2) Find the warmest and coldest years.
     3) Find the mean temperature for each calendar month (the average for all Mays, for example) and the instance of each month that has the greatest and smallest variation from that mean.
 
-## Installation
 
-// TODO
-
-## Usage
-
-// TO DO
-
-    $ java -jar functional-assignment-0.1.0-standalone.jar [args]
-
-## Options
-
-FIXME: listing of options this app accepts.
-
-## Examples
-
-...
-
-### Bugs
-TBC
-...
-
-### Walkthrough
-
-
-### Inspiration/Citations Not in Comments
-### Might be Useful
 
 ## License
 
